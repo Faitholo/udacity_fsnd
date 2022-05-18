@@ -1,28 +1,34 @@
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///test'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///todo_app'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-class Person(db.Model):
-    """Creating a persons table"""
-    __tablename__ = 'persons'
+migrate = Migrate(app, db)
+
+class Todo(db.Model):
+    """Creating a todos table"""
+    __tablename__ = 'todos'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
+    description = db.Column(db.String(), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
-        return f'<ID: {self.id}, name: {self.name}>'
-# Calling the create_all() method   
-db.create_all()
+        return f'<Todo: {self.id} {self.description}>'
+
+
+@app.route('/todos/create', methods=['POST'])
+def create_todo():   
+   body={}
 
 @app.route('/')
-def greet():
-    person = Person.query.first()
-    return 'Hello ' + person.name
+def index():
+    return render_template('index.html', data=Todo.query.all())
 
 if __name__ == '__main__':
     app.debug = True
