@@ -11,6 +11,11 @@
             .hidden {
                 display: none;
             }
+            ul {
+                list-style: none;
+                padding:0;
+                margin: 0;
+            }
         </style>
     </head>
     <body>
@@ -18,9 +23,9 @@
             <input type="text" id="description" name="description" />
             <input type="submit" value="Create" />
         </form>
-        <ul>
+        <ul id="todo">
             {% for d in data %}
-            <li>{{ d.description }}</li>
+            <li>  <input type = "checkbox" {% if d.completed %} checked {% endif %} /> {{d.description }}</li>
             {% endfor %}
         </ul>
         <div class = "hidden" id = "error" style="display:none;"> Something went wrong! </div>
@@ -39,7 +44,6 @@
                      return response.json();
                 })
                 .then(function(jsonResponse) {
-                    console.log(jsonResponse);
                     const liItem= document.createElement('LI');
                     liItem.innerHTML = jsonResponse['description'];
                     document.getElementById('todo').appendChild(liItem);
@@ -50,6 +54,22 @@
                 })
             
             })
+
+            for (let i = 0 ; i < checkboxes.length ; i++) {
+                const checkbox = checkboxes[i];
+                checkbox.onchange = function(e) {
+                   console.log('event',e);
+                   const newCompleted = e.target.checked;
+                   fetch ('/todos/set-completed'), {
+                      method: post;
+                      body:JSON.stringify( { 'completed' : newCompleted 
+                        }),
+                      headers:  {
+                           'Content-Type': 'application/json'; 
+                            }
+                    }
+                }
+            }
         </script>
     </body>
 </html>
